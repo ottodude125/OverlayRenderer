@@ -26,7 +26,7 @@ C_DEPS += \
 src/%.o: ../src/%.c
 	@echo 'Building file: $<'
 	@echo 'Invoking: Cross GCC Compiler'
-	gcc -I/opt/local/include -I/opt/local/include/opencv -I/opt/local/include/opencv2 -I/opt/local/include/opencv2/calib3d -I/opt/local/include/opencv2/contrib -I/opt/local/include/opencv2/core -I/opt/local/include/opencv2/features2d -I/opt/local/include/opencv2/flann -I/opt/local/include/opencv2/gpu -I/opt/local/include/opencv2/highgui -I/opt/local/include/opencv2/imgproc -I/opt/local/include/opencv2/legacy -I/opt/local/include/opencv2/ml -I/opt/local/include/opencv2/objdetect -I/opt/local/include/opencv2/ts -I/opt/local/include/opencv2/video -I/opt/local/include/ImageMagick -I/opt/local/include/ImageMagick/magick -I/opt/local/include/ImageMagick/Magick++ -I/opt/local/include/ImageMagick/wand -O1 -g3 -Wall -c -fmessage-length=0 -v -MMD -MP -MF"$(@:%.o=%.d)" -MT"$(@:%.o=%.d)" -o "$@" "$<"
+	gcc -I/opt/local/include -I/opt/local/include/opencv -I/opt/local/include/opencv2 -I/opt/local/include/opencv2/calib3d -I/opt/local/include/opencv2/contrib -I/opt/local/include/opencv2/core -I/opt/local/include/opencv2/features2d -I/opt/local/include/opencv2/flann -I/opt/local/include/opencv2/gpu -I/opt/local/include/opencv2/highgui -I/opt/local/include/opencv2/imgproc -I/opt/local/include/opencv2/legacy -I/opt/local/include/opencv2/ml -I/opt/local/include/opencv2/objdetect -I/opt/local/include/opencv2/ts -I/opt/local/include/opencv2/video -I/opt/local/include/ImageMagick -I/opt/local/include/ImageMagick/magick -I/opt/local/include/ImageMagick/Magick++ -I/opt/local/include/ImageMagick/wand -O0 -g3 -Wall -c -fmessage-length=0 -MMD -MP -MF"$(@:%.o=%.d)" -MT"$(@:%.o=%.d)" -o "$@" "$<"
 	@echo 'Finished building: $<'
 	@echo ' '
 

@@ -26,7 +26,7 @@ int main(int argc,char **argv)
 	processImageData();
 
 	a = updateRouteData(25, 0, 2, 1, 0, 0, 0, 0);
-	//printf(" Number %d", a);
+	printf(" Number %d", a);
 
 	processImageData();
 

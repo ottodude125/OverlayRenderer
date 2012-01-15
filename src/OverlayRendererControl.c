@@ -15,7 +15,7 @@
 #include <time.h>
 
 
-#include "cv.h"
+//#include "cv.h"
 #include "cxcore.h"
 #include "highgui.h"
 
