@@ -17,8 +17,9 @@
 #include <time.h>
 
 
+
 // method for OverlayRendererControl to call to get updated arrow dimensions from mapping and routing data
-void processGenericImageData(OverlayRendererControl *control);
+//void processGenericImageData(OverlayRendererControl *control);
 
 
 #endif /* ROUTEINPUTANALYZER_H_ */

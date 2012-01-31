@@ -2,20 +2,25 @@
  * ImageCreation.h
  *
  *  Created on: Dec 3, 2011
- *      Author: ubuntu3
+ *      Author: Jonathan Katon
  */
 
-#ifndef IMAGECREATION_H_
+#ifndef IMAGECREATION_H_ //IMAGECREATION_H_
 #define IMAGECREATION_H_
 
-#include "RouteInputAnalyzer.h"
 #include "OverlayRendererControl.h"
+#include "RouteInputAnalyzer.h"
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
 
+
 //void drawImage(OverlayRendererControl *control);
 
+
 #endif /* IMAGECREATION_H_ */
+
+
+
