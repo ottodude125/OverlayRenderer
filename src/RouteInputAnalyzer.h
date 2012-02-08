@@ -16,6 +16,10 @@
 #include <string.h>
 #include <time.h>
 
+typedef struct
+{
+	int temp;
+}RouteInputAnalyzer;
 
 
 // method for OverlayRendererControl to call to get updated arrow dimensions from mapping and routing data

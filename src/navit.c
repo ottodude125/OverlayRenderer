@@ -14,7 +14,7 @@
 #include <string.h>
 #include <time.h>
 
-const char *file = "data.csv";
+const char *file = "data.txt";
 FILE *f;
 
 int main(int argc,char **argv)

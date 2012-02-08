@@ -25,8 +25,8 @@ typedef struct
 		int height; // height of projection
 		char color[40]; // color of projection
 		int textPosition[2][2]; // (x,y) position of speed and turn distance text
-		int camera_x;
-		int camera_y;
+		int camera_x; // width of camera
+		int camera_y; // height of camera
 		
 		// pixel box range for guess of road location
 		int x1;

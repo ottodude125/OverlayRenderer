@@ -4,7 +4,10 @@
  *  Created on: Dec 3, 2011
  *      Author: Jonathan Katon
  *
- *      ImageCreation
+ *      ImageCreation is responsible for creating the final graphic which will be displayed. It does the following:
+ *      	1) Produce arrow within constraints of provided pixel box and in direction determined by angle
+ *
+ *
  */
 
 #include "OverlayRendererControl.h"

@@ -59,20 +59,31 @@ static void genericStraightRoadBox(OverlayRendererControl *controller)
 // method for establishing generic right turn pixel box
 static void rightTurnBox(OverlayRendererControl *controller)
 {
-	controller->x1 = controller->width / 2;
-	controller->y1 = controller->height / 2 - controller->height / 10;
-	controller->x2 = controller->width - 100;
-	controller->y2 = controller->height / 2;
+	/*
+	 * First box created should be at top of display and be a tiny arrow.
+	 * As distance/velocity decreases the box should move down the screen
+	 * and the arrow should increase in size
+	 */
+	int time = controller->distance/controller->velocity;
+
+	controller->x1 = (int) ((controller->width)/2);
+	controller->y1 = (int) ((controller->height) - ( time * (controller->height)/16));
+	controller->x2 = (int) ((controller->width) - (controller->width)/2.5 + ( time * (controller->width)/12));
+	controller->y2 = (int) ((controller->height) - ( time * (controller->height)/18));
+
 	controller->type_of_arrow = 3;
 }
 
 // method for establishing generic left turn pixel box
 static void leftTurnBox(OverlayRendererControl *controller)
 {
-	controller->x1 = 100;
-	controller->y1 = controller->height / 2 - controller->height / 10;
-	controller->x2 = controller->width / 2;
-	controller->y2 = controller->height / 2;
+	int time = controller->distance/controller->velocity;
+
+	controller->x1 = 100 + (time * controller->width/16);
+	controller->y1 = controller->height - ( time * (controller->height)/16);
+	controller->x2 = controller->width/2;
+	controller->y2 = (controller->height) - ( time * (controller->height)/18);
+
 	controller->type_of_arrow = 1;
 }
 
@@ -106,7 +117,7 @@ void processNavData(OverlayRendererControl *control)
 	// int distance; // distance before next turn is made in meters
 	// int turn_angle; // angle of next turn in +/- 180 degrees with respect to road currently on
 	
-	int time = control->distance / control->velocity;
+	float time = control->distance / control->velocity;
 	
 	/* If time is greater than x then draw arrow on current road.
 	 * If time is less than x and turn angle less than 0 draw arrow pointing left
