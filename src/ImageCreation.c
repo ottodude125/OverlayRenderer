@@ -5,7 +5,7 @@
  *      Author: Jonathan Katon
  *
  *      ImageCreation is responsible for creating the final graphic which will be displayed. It does the following:
- *      	1) Produce arrow within constraints of provided pixel box and in direction determined by angle
+ *      	1) Produce arrow within constraints of provided pixel box and in direction determined by angles
  *
  *
  */

@@ -66,10 +66,10 @@ static void rightTurnBox(OverlayRendererControl *controller)
 	 */
 	int time = controller->distance/controller->velocity;
 
-	controller->x1 = (int) ((controller->width)/2);
-	controller->y1 = (int) ((controller->height) - ( time * (controller->height)/16));
-	controller->x2 = (int) ((controller->width) - (controller->width)/2.5 + ( time * (controller->width)/12));
-	controller->y2 = (int) ((controller->height) - ( time * (controller->height)/18));
+	controller->x1 = (int) (controller->width/2);
+	controller->y1 = (int) (controller->height - ( time * controller->height/16));
+	controller->x2 = (int) (controller->width - (controller->width/16 *  time));
+	controller->y2 = (int) (controller->height - ( time * (controller->height)/16));
 
 	controller->type_of_arrow = 3;
 }
