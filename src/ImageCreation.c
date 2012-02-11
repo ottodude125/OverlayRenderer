@@ -5,8 +5,7 @@
  *      Author: Jonathan Katon
  *
  *      ImageCreation is responsible for creating the final graphic which will be displayed. It does the following:
- *      	1) Produce arrow within constraints of provided pixel box and in direction determined by angles
- *
+ *      	1) Produce arrow within constraints of provided pixel box and in direction determined by angle
  *
  */
 
@@ -70,7 +69,7 @@ static void genericLeftArrow(OverlayRendererControl *controller)
 	int p1y = controller->y1;
 	int p2x = controller->x2;
 	int p2y = controller->y2;
-	
+
 	// Calculate the pixel locations for the three points of the arrow head
 	// x0
 	controller->triangle[0][0] = p1x + (p2x-p1x)/3;
@@ -163,7 +162,7 @@ void drawImage(OverlayRendererControl *control)
 			break;
 	}
 	control->type_of_arrow = 0;
-	
+
 	MagickWand *m_wand = NULL;
 	DrawingWand *d_wand = NULL;
 	PixelWand *c_wand = NULL;

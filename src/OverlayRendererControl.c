@@ -70,28 +70,39 @@ static void setInfoTextPosition()
 static void setTextToDisplay()
 {
 	// calculate mph of vehicle
-	float mph = controller.velocity * 2.2369363;
+	int mph = (int) (controller.velocity * 2.2369363);
 	// calculate feet to next turn
-	float feet = controller.distance * 3.2808399;
+	int feet = (int) (controller.distance * 3.2808399);
 	
 	// set text of speed
-	sprintf(controller.speed_text, "%f", mph); // convert speed to string and place in array
+	sprintf(controller.speed_text, "%d", mph); // convert speed to string and place in array
 	strcat(controller.speed_text, " mph"); // Concatenate text onto it
 	
-	// if feet less than 1000 display distance to next turn in feet
+	// if feet less than 500 display distance to next turn in feet with 50 ft precision
+	if(feet < 500 )
+	{
+		feet = feet - feet % 50;
+
+		// set text of distance to next turn
+		sprintf(controller.distance_to_next_turn_text, "%d", feet); // convert distance to string and place in array
+		strcat(controller.distance_to_next_turn_text, " feet before next turn"); // Concatenate text onto it
+	}
+	// if feet less than 1000 display distance to next turn in feet with 100 ft precision
 	if(feet < 1000 )
 	{
+		feet = feet - feet % 100;
+
 		// set text of distance to next turn
-		sprintf(controller.distance_to_next_turn_text, "%f", feet); // convert distance to string and place in array
+		sprintf(controller.distance_to_next_turn_text, "%d", feet); // convert distance to string and place in array
 		strcat(controller.distance_to_next_turn_text, " feet before next turn"); // Concatenate text onto it
 	}
 	else // otherwise display distance to next turn in miles
 	{
 		// calculate the miles to next turn
-		float miles = feet/5280;
-		
+		float miles = (controller.distance * 3.2808399)/5280;
+
 		// set text of distance to next turn
-		sprintf(controller.distance_to_next_turn_text, "%f", miles); // convert distance to string and place in array
+		sprintf(controller.distance_to_next_turn_text, "%.1f", miles); // convert distance to string and place in array
 		strcat(controller.distance_to_next_turn_text, " miles before next turn"); // Concatenate text onto it
 	}
 }

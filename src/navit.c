@@ -19,7 +19,7 @@ FILE *f;
 
 int main(int argc,char **argv)
 {
-	initializeSystem(1440, 900, "green", 400, 300);
+	initializeSystem(1440, 900, "red", 400, 300);
 	
 	f = fopen(file, "r");
 	
@@ -36,32 +36,19 @@ int main(int argc,char **argv)
 				values[i] = (int)strtol(ptr, &ptr, 10);
 			}
 			
-			int a = updateRouteData(values[0], values[1], values[2], values[3]); // left
+			int a = updateRouteData(values[0], values[1], values[2], values[3]);
+
+			while( a != 1)
+			{
+				a = updateRouteData(values[0], values[1], values[2], values[3]);
+			}
 			processImageData();
-			printf(" Number %d\n", a);
-			//printf(" Number %d", values[0]);
-			//printf(" Number %d", values[1]);
-			//printf(" Number %d", values[2]);
-			//printf(" Number %d\n", values[3]);
-			
 			
 		}
 		
 	}
 	else
-		printf("you suck balls!!!");
-	
-	//updateRouteData(int velocity, int road_angle, int distance, int turn_angle)
-	
-	/*	int a = updateRouteData(25, 0, 200, -1); // left
-	 processImageData();
-	 
-	 a = updateRouteData(25, 0, 2000, 1); // straight
-	 processImageData();
-	 
-	 a = updateRouteData(25, 0, 200, 1); // right
-	 printf(" Number %d", a);
-	 processImageData();*/
+		printf("cannot open file");
 	
 	fclose(f);
 	

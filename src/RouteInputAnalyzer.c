@@ -64,12 +64,12 @@ static void rightTurnBox(OverlayRendererControl *controller)
 	 * As distance/velocity decreases the box should move down the screen
 	 * and the arrow should increase in size
 	 */
-	int time = controller->distance/controller->velocity;
+	float time = controller->distance/controller->velocity + .1;
 
 	controller->x1 = (int) (controller->width/2);
-	controller->y1 = (int) (controller->height - ( time * controller->height/16));
-	controller->x2 = (int) (controller->width - (controller->width/16 *  time));
-	controller->y2 = (int) (controller->height - ( time * (controller->height)/16));
+	controller->y1 = (int) (controller->height - controller->height * .2 -  ( time * controller->height/16));
+	controller->x2 = (int) (controller->width - (controller->width/30 *  time));
+	controller->y2 = (int) (controller->height - controller->height * .2 - ( time * (controller->height)/17)) + (13/(time + 2))*(controller->height/90);
 
 	controller->type_of_arrow = 3;
 }
@@ -77,12 +77,12 @@ static void rightTurnBox(OverlayRendererControl *controller)
 // method for establishing generic left turn pixel box
 static void leftTurnBox(OverlayRendererControl *controller)
 {
-	int time = controller->distance/controller->velocity;
+	float time = controller->distance/controller->velocity + .1;
 
-	controller->x1 = 100 + (time * controller->width/16);
-	controller->y1 = controller->height - ( time * (controller->height)/16);
-	controller->x2 = controller->width/2;
-	controller->y2 = (controller->height) - ( time * (controller->height)/18);
+	controller->x1 = (int) (controller->width/30 *  time);
+	controller->y1 = (int) (controller->height - controller->height * .2 -  ( time * controller->height/16));
+	controller->x2 = (int) (controller->width/2);
+	controller->y2 = (int) (controller->height - controller->height * .2 - ( time * (controller->height)/17)) + (13/(time + 2))*(controller->height/90);
 
 	controller->type_of_arrow = 1;
 }
@@ -91,7 +91,7 @@ static void leftTurnBox(OverlayRendererControl *controller)
 static void straightRoadBox(OverlayRendererControl *controller)
 {
 	controller->x1 = controller->width / 2 - controller->width / 20;
-	controller->y1 = 100;
+	controller->y1 = controller->height/10;
 	controller->x2 = controller->width / 2 + controller->width / 20;
 	controller->y2 = controller->height - 50;
 	controller->type_of_arrow = 2;
@@ -124,7 +124,7 @@ void processNavData(OverlayRendererControl *control)
 	 * If time is less than x and turn angle greater than 0 draw arrow pointing right
 	 */
 	
-	if(time > 12)
+	if(time >= 12)
 	{
 		straightRoadBox(control);
 	}
@@ -138,7 +138,7 @@ void processNavData(OverlayRendererControl *control)
 	}
 	else
 	{
-		printf("There has been a system error. Please drive off the next available cliff. Thank you have a nice day!!");
+		printf("There has been a system error.\n");
 	}
 }
 
