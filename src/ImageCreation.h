@@ -10,6 +10,7 @@
 
 #include "OverlayRendererControl.h"
 #include "RouteInputAnalyzer.h"
+#include "ChoicePathAlgorithm.h"
 
 #include <stdio.h>
 #include <stdlib.h>

@@ -10,6 +10,7 @@
 #define OVERLAYRENDERERCONTROL_H_
 
 #include "RouteInputAnalyzer.h"
+#include "ChoicePathAlgorithm.h"
 #include "ImageCreation.h"
 
 #include <stdio.h>
@@ -33,6 +34,10 @@ typedef struct
 		int y1;
 		int x2;
 		int y2;
+		int x3;
+		int y3;
+		int x4;
+		int y4;
 		int type_of_arrow;
 		
 		// calculated pixels for arrow placement
@@ -74,6 +79,8 @@ int updateRouteData(int velocity, int road_angle, int distance, int turn_angle);
 
 // method responsible for controlling the RouteInputAnalyzer, ChoicePath, and ImageCreation
 void processImageData();
+
+OverlayRendererControl controller;
 
 
 #endif /* OVERLAYRENDERERCONTROL_H_ */

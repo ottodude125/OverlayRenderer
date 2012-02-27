@@ -33,9 +33,7 @@
  *
  */
 
-#include "RouteInputAnalyzer.h"
 #include "OverlayRendererControl.h"
-#include "ImageCreation.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -43,13 +41,12 @@
 #include <time.h>
 
 
-//#include "cv.h"
 #include "cxcore.h"
 #include "highgui.h"
 
 typedef char * string;
 
-static OverlayRendererControl controller;
+//static OverlayRendererControl controller;
 static int initialized = 0;
 
 // static method to set pixel position of text in projection
@@ -88,7 +85,7 @@ static void setTextToDisplay()
 		strcat(controller.distance_to_next_turn_text, " feet before next turn"); // Concatenate text onto it
 	}
 	// if feet less than 1000 display distance to next turn in feet with 100 ft precision
-	if(feet < 1000 )
+	else if(feet < 1000)
 	{
 		feet = feet - feet % 100;
 
@@ -200,16 +197,20 @@ void processImageData()
 		char projection_color[] = "red";
 		initializeSystem(800, 600,projection_color, 400, 300);
 	}
-	
+
 	// TODO: Need to figure out how to create a thread here that will constantly run until the program exits
 	while(controller.map_data_up_to_date)
 	{
 		// If new data has been received then process it
 		if(controller.map_data_up_to_date)
 		{
-			// calculated pixels for arrow placement
+			// calculate pixel box for arrow placement using GPS data
+			//processGenericNavData(&controller);
 			processNavData(&controller);
-			
+
+			// increase precision of pixel box for arrow placement using RoadTracking data
+			processTrackingData();
+
 			// create arrow and draw it to screen
 			drawImage(&controller);
 			
@@ -222,7 +223,7 @@ void processImageData()
 			cvSetWindowProperty("Projection", CV_WND_PROP_FULLSCREEN, CV_WINDOW_FULLSCREEN);
 			img = cvLoadImage( "arrow_test.jpg", CV_LOAD_IMAGE_UNCHANGED );
 			cvShowImage("Projection", img);
-			cvWaitKey(150);
+			//cvWaitKey(150);
 		}
 	}
 	

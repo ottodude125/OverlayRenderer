@@ -9,6 +9,7 @@
 #define ROUTEINPUTANALYZER_H_
 
 #include "OverlayRendererControl.h"
+#include "ChoicePathAlgorithm.h"
 #include "ImageCreation.h"
 
 #include <stdio.h>
@@ -19,6 +20,7 @@
 typedef struct
 {
 	int temp;
+
 }RouteInputAnalyzer;
 
 
