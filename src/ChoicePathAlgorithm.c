@@ -15,7 +15,12 @@
 #include "ChoicePathAlgorithm.h"
 
 
-void processTrackingData()
+// 1) analyze points and figure out which points matter
+// 2) determine what points create the rectangle over the turn and create that rectangle
+// 3) compare my rectangle to that rectangle
+// 4) based on what I see make necessary adjustments
+
+void processTrackingData(OverlayRendererControl *control)
 {
 
 }
