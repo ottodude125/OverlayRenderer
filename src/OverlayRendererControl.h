@@ -4,6 +4,9 @@
  *  Created on: Dec 3, 2011
  *      Author: Jonathan Katon
  *
+ *	The header file contains a struct which will contain all the variables required for the
+ *	OverlayRendering system. These variables control the projector along with hold values
+ *	passed by MappingAndRouting and  RoadTracking System
  */
 
 #ifndef OVERLAYRENDERERCONTROL_H_
@@ -21,7 +24,7 @@
 
 typedef struct
 	{
-		// projector setup
+		// projector and OverlayRendering setup parameters
 		int width; // width of projection
 		int height; // height of projection
 		char color[40]; // color of projection
@@ -38,7 +41,7 @@ typedef struct
 		int y3;
 		int x4;
 		int y4;
-		int type_of_arrow;
+		int type_of_arrow; // 1 left, 2 straight, 3 right
 		
 		// calculated pixels for arrow placement
 		int triangle[3][2];
@@ -59,7 +62,7 @@ typedef struct
 		int map_data_up_to_date; // 1 for yes, 0 for no
 		
 		// roadway boundaries data set by RoadTracking
-		int* boundary_array[1600][900]; // matrix of edge conditions
+		int* boundary_array[2][6]; // matrix of 6 points indicating edge conditions
 		
 		// roadway boundaries data set by OverlayControl
 		time_t time_since_road_update;
@@ -71,7 +74,7 @@ typedef struct
 // method to initialize  the overlay rendering system - projector size and color
 void initializeSystem(int xdimension, int ydimension, char projection_color[], int camera_X, int camera_Y);
 
-// mrolethod to change the color of the projection
+// method to change the color of the projection
 void setProjectionColor(char projection_color[]);
 
 // method to update the current route information

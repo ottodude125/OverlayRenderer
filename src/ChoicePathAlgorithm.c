@@ -15,7 +15,7 @@
 #include "ChoicePathAlgorithm.h"
 
 
-void processTrackingData()
+void processTrackingData(OverlayRendererControl *control)
 {
 
 }

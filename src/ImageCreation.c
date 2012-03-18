@@ -26,8 +26,8 @@ static void genericRightArrow(OverlayRendererControl *controller)
 {
 	int p1x = controller->x1;
 	int p1y = controller->y1;
-	int p2x = controller->x2;
-	int p2y = controller->y2;
+	int p2x = controller->x3;
+	int p2y = controller->y3;
 	
 	// Calculate the pixel locations for the three points of the arrow head
 	// x0
@@ -212,11 +212,13 @@ static void RightArrow(OverlayRendererControl *controller)
 }
 
 // Method which draws the Bar of the arrow
-static void createRectangle(OverlayRendererControl *controller, DrawingWand *d, PixelWand *c)
+static void createRectangle(OverlayRendererControl *controller, DrawingWand *d, PixelWand *p)
 {
 	PushDrawingWand(d);
 
 	//DrawRotate(d, angle);
+	//DrawSkewX(d, 0);
+	//DrawSkewY(d, -angle);
 
 	// Draw out the Rectangle using points 0 and 2
 	DrawRectangle(d,controller->square[0][0], controller->square[0][1], controller->square[2][0], controller->square[2][1]);
@@ -225,7 +227,7 @@ static void createRectangle(OverlayRendererControl *controller, DrawingWand *d, 
 }
 
 // Method which draws the head of the arrow
-static void createTriangle(OverlayRendererControl *controller, DrawingWand *d, PixelWand *c, MagickWand *m)
+static void createTriangle(OverlayRendererControl *controller, DrawingWand *d, PixelWand *p, MagickWand *m)
 {
 	PushDrawingWand(d);
 
@@ -238,12 +240,37 @@ static void createTriangle(OverlayRendererControl *controller, DrawingWand *d, P
     };
 
 	//DrawRotate(d, angle);
+	//DrawSkewX(d, 0);
+	//DrawSkewY(d, -angle);
 
 	// Draw the arrow head
 	DrawPolygon(d,3,points);
 
 	PopDrawingWand(d);
 
+}
+
+static void createRect(OverlayRendererControl *controller, DrawingWand *d, PixelWand *p, MagickWand *m)
+{
+	PushDrawingWand(d);
+
+	// Set the three points of arrow head
+	const PointInfo points[4] =
+    {
+		{ controller->square[0][0], controller->square[0][1] },
+		{ controller->square[1][0], controller->square[1][1] },
+		{ controller->square[2][0], controller->square[2][1] },
+		{ controller->square[3][0], controller->square[3][1] }
+    };
+
+	//DrawRotate(d, angle);
+	//DrawSkewX(d, 0);
+	//DrawSkewY(d, -angle);
+
+	// Draw the arrow head
+	DrawPolygon(d,4,points);
+
+	PopDrawingWand(d);
 }
 
 // Method which draws the text
@@ -254,20 +281,22 @@ static void drawText(OverlayRendererControl *controller, DrawingWand *d, MagickW
 }
 
 // Method to change Color Settings of Arrow and Text
-static void changeColorSettings(OverlayRendererControl *controller, DrawingWand *d, PixelWand *c)
+static void changeColorSettings(OverlayRendererControl *controller, DrawingWand *d, PixelWand *p)
 {
-	PixelSetColor(c,controller->color); // set color of pixels in shape
-	DrawSetStrokeColor(d,c); // set stroke color
-	DrawSetFillColor(d,c); // set the shape fill color
+	PixelSetColor(p,controller->color); // set color of pixels in shape
+	//PixelSetOpacity(p, 0); // set opacity of the fill
+	DrawSetStrokeColor(d,p); // set stroke color
+	DrawSetFillColor(d,p); // set the shape fill color
 	DrawSetStrokeWidth(d,.0001); // set the width of the stroke
-	DrawSetStrokeAntialias(d,1); // no clue what this does =(
-	DrawSetStrokeOpacity(d,1); // set opacity of the drawing
+	DrawSetStrokeAntialias(d, 1); // no clue what this does =(
+	//DrawSetStrokeOpacity(d,0); // set opacity of the border
+	//DrawSetGravity(d,CenterGravity);
 }
 
 void drawImage(OverlayRendererControl *control)
 {
 	// calculate the 3 coordinates for corners of arrow head and 4 coordinates for corners of arrow bar
-	switch(control->type_of_arrow)
+/*	switch(control->type_of_arrow)
 	{
 		case 1:
 			genericLeftArrow(control);
@@ -281,60 +310,114 @@ void drawImage(OverlayRendererControl *control)
 		default:
 			genericStraightArrow(control);
 			break;
-	}
+	}*/
 
 	// reset type of arrow to be drawn for next iteration
 	control->type_of_arrow = 0;
 
-	//MagickBooleanType MagickDistortImage(MagickWand *wand, const DistortImageMethod method,const size_t number_arguments, const double *arguments,const MagickBooleanType bestfit);
-
-	//MagickDistortImage(m_wand, Affine, 6, );
-
-
 	/*** Create the needed ImageMagick Wand's and then the Environment ***/
-	MagickWand *m_wand = NewMagickWand();
-	DrawingWand *d_wand = NewDrawingWand();
-	PixelWand *c_wand = NewPixelWand();
+	MagickWand *m1 = NewMagickWand();
+	DrawingWand *d1 = NewDrawingWand();
+	PixelWand *p1 = NewPixelWand();
+
+	MagickWand *m2 = NewMagickWand();
+	DrawingWand *d2 = NewDrawingWand();
+	PixelWand *p2 = NewPixelWand();
 	MagickWandGenesis();
 
 	
 	/*** Create blank image canvas with a black background ***/
-	PixelSetColor(c_wand, "black"); // set color of image background
-	MagickNewImage(m_wand,control->width,control->height,c_wand); // create blank image
+	PixelSetColor(p2, "clear"); // set color of image background
+	MagickNewImage(m1,control->width,control->height,p2); // create blank image
 
 
 	/*** Set color of image to users setting ***/
-	changeColorSettings(control, d_wand, c_wand);
+	changeColorSettings(control, d1, p1);
 
 
 	/*** Draw Bar of Arrow ***/
-	createRectangle(control, d_wand, c_wand);
+	//createRectangle(control, d1, p1);
+	createRect(control, d1, p1, m1);
 
 
 	/*** Draw Head of Arrow ***/
-	createTriangle(control, d_wand, c_wand, m_wand);
-
+	createTriangle(control, d1, p1, m1);
+	//createRect(control, d1, p1, m1);
 
 	/*** Add Bar and Head of Arrow to the Blank Canvas  ***/
-	MagickDrawImage(m_wand,d_wand);
+	MagickDrawImage(m1,d1);
 
 
+	//MagickBooleanType MagickDistortImage(MagickWand *wand, const DistortImageMethod method,const size_t number_arguments, const double *arguments,const MagickBooleanType bestfit);
+
+	//MagickDistortImage(m_wand, Affine, 6, );
 	//MagickDistortImage(m_wand, AffineDistortion, 1, MagickTrue);
 
 
 	/*** Add the Text to the Canvas ***/
-	drawText(control, d_wand, m_wand);
+	drawText(control, d1, m1);
 
 	
 	/*** Save Image to file ***/
-	MagickWriteImage(m_wand,"arrow_test.jpg");
+	MagickWriteImage(m1,"arrow_test.jpg");
 	
 
 	/*** Clear up Memory ***/
-	c_wand = DestroyPixelWand(c_wand);
-	m_wand = DestroyMagickWand(m_wand);
-	d_wand = DestroyDrawingWand(d_wand);
+	p1 = DestroyPixelWand(p1);
+	m1 = DestroyMagickWand(m1);
+	d1 = DestroyDrawingWand(d1);
 	MagickWandTerminus();
+
+	   MagickWand *mw1 = NewMagickWand();
+	   PixelWand *bgw1 = NewPixelWand();
+	   DrawingWand *dw1 = NewDrawingWand();
+
+	   MagickWand *mw2 = NewMagickWand();
+	   PixelWand *bgw2 = NewPixelWand();
+	   DrawingWand *dw2 = NewDrawingWand();
+
+	   MagickWand *merged;
+
+	   MagickWandGenesis();
+	   PixelSetColor(bgw1,"red");
+	   MagickNewImage(mw1, 100, 100, bgw1); // this image should have an opaque background
+
+
+	//... paint on the image
+	   PixelSetColor(bgw1,"white");
+	   DrawSetFillColor(dw1,bgw1);
+	   DrawSetFontSize(dw1,12);
+	   DrawSetFont(dw1,"Times-New-Roman");
+	   MagickAnnotateImage(mw1,dw1,0,15,0.0,"Hello");
+
+	// now create another layer
+
+
+
+	   PixelSetColor(bgw2,"none");
+	   MagickNewImage(mw2, 100, 100, bgw2); // this image should have a transparent background
+
+	// ... paint on the second image
+	   PixelSetColor(bgw2,"blue");
+	   DrawSetFillColor(dw2,bgw2);
+	   DrawSetFontSize(dw2,12);
+	   DrawSetFont(dw2,"Times-New-Roman");
+	   MagickAnnotateImage(mw2,dw2,0,50,0.0,"Magick");
+
+	// create the final image
+	   MagickAddImage(mw2, mw1);
+	   merged = MagickMergeImageLayers(mw2, MergeLayer);
+	   MagickWriteImage(mw1, "mw1.png");
+	   MagickWriteImage(mw2, "mw2.png");
+	   MagickWriteImage(merged, "mwb.png");
+
+	   merged = DestroyMagickWand(merged);
+	   mw1 = DestroyMagickWand(mw1);
+	   mw2 = DestroyMagickWand(mw2);
+	   bgw2 = DestroyPixelWand(bgw2);
+	   dw2 = DestroyDrawingWand(dw2);
+	   bgw1 = DestroyPixelWand(bgw1);
+	   dw1 = DestroyDrawingWand(dw1);
 
 }
 
