@@ -315,6 +315,7 @@ void drawImage(OverlayRendererControl *control)
 	// reset type of arrow to be drawn for next iteration
 	//control->type_of_arrow = 0;
 
+
 	/*** Create the needed ImageMagick Wand's and then the Environment ***/
 	MagickWand *m1 = NewMagickWand();
 	DrawingWand *d1 = NewDrawingWand();
@@ -347,13 +348,6 @@ void drawImage(OverlayRendererControl *control)
 	/*** Add Bar and Head of Arrow to the Blank Canvas  ***/
 	MagickDrawImage(m1,d1);
 
-
-	//MagickBooleanType MagickDistortImage(MagickWand *wand, const DistortImageMethod method,const size_t number_arguments, const double *arguments,const MagickBooleanType bestfit);
-
-	//MagickDistortImage(m_wand, Affine, 6, );
-	//MagickDistortImage(m_wand, AffineDistortion, 1, MagickTrue);
-
-
 	/*** Add the Text to the Canvas ***/
 	drawText(control, d1, m1);
 
@@ -367,7 +361,6 @@ void drawImage(OverlayRendererControl *control)
 	m1 = DestroyMagickWand(m1);
 	d1 = DestroyDrawingWand(d1);
 	MagickWandTerminus();
-
 
 }
 

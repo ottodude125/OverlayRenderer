@@ -23,6 +23,7 @@ FILE *f;
 int main(int argc,char **argv)
 {
 	initializeSystem(1440, 900, "red", 400, 300);
+
 	f = fopen(file, "r");
 	
 	time_t sec;

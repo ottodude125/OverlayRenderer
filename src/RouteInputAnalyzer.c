@@ -255,6 +255,7 @@ static void rightTurnBox(OverlayRendererControl *controller)
 	controller->triangle[1][1] = (int) ((controller->x3 - controller->triangle[1][0]) * sin(turnrad) + (controller->triangle[1][1] - controller->y3) * cos(turnrad) + controller->y3);
 	controller->triangle[2][0] = (int) ((controller->triangle[2][0] - controller->x3) * cos(turnrad) + (controller->triangle[2][1] - controller->y3) * sin(turnrad) + controller->x3);
 	controller->triangle[2][1] = (int) ((controller->x3 - controller->triangle[2][0]) * sin(turnrad) + (controller->triangle[2][1] - controller->y3) * cos(turnrad) + controller->y3);
+
 }
 
 // method for establishing generic left turn pixel box
@@ -298,6 +299,7 @@ static void leftTurnBox(OverlayRendererControl *controller)
 	controller->triangle[1][1] = (int) ((controller->x4 - controller->triangle[1][0]) * sin(turnrad) + (controller->triangle[1][1] - controller->y4) * cos(turnrad) + controller->y4);
 	controller->triangle[2][0] = (int) ((controller->triangle[2][0] - controller->x4) * cos(turnrad) + (controller->triangle[2][1] - controller->y4) * sin(turnrad) + controller->x4);
 	controller->triangle[2][1] = (int) ((controller->x4 - controller->triangle[2][0]) * sin(turnrad) + (controller->triangle[2][1] - controller->y4) * cos(turnrad) + controller->y4);
+
 }
 
 // method for establishing  straight turn pixel box
