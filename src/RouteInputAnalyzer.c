@@ -10,7 +10,9 @@
  *      	3) distance before next turn is made in meters
  *      	4) angle of next turn in +/- 180 degrees with respect to road currently on
  *
- *      This data is processed to determine a pixel box in which the arrow should be drawn
+ *      This data is processed which determines the pixel box in which the arrow should be draw.
+ *      Then vertices of the arrow are then calculated
+ *      Then the coordinates of the arrow are rotated based on the angle of approaching turn
  *
  */
 
@@ -28,7 +30,7 @@
 /*****   of a pixel box and form the corresponding arrow which fills that box  *****/
 /***********************************************************************************/
 
-// method for drawing a generic "one sized fits all" right arrow
+// private method for drawing a generic "one sized fits all" right arrow
 static void genericRightArrow(OverlayRendererControl *controller)
 {
 	int p1x = controller->x1;
@@ -69,7 +71,7 @@ static void genericRightArrow(OverlayRendererControl *controller)
 	controller->square[3][1]  = p2y - (p2y-p1y)*.33;
 }
 
-// method for drawing a generic "one sized fits all" left arrow
+// private method for drawing a generic "one sized fits all" left arrow
 static void genericLeftArrow(OverlayRendererControl *controller)
 {
 	int p1x = controller->x1;
@@ -110,7 +112,7 @@ static void genericLeftArrow(OverlayRendererControl *controller)
 	controller->square[3][1]  = p2y - (p2y-p1y)*.33;
 }
 
-// method for drawing a generic "one sized fits all" straight arrow
+// private method for drawing a generic "one sized fits all" straight arrow
 static void genericStraightArrow(OverlayRendererControl *controller)
 {
 	int p1x = controller->x1;
@@ -157,7 +159,7 @@ static void genericStraightArrow(OverlayRendererControl *controller)
 /*****   forming the corners of a pixel box	for a generic arrow		   *****/
 /***************************************************************************/
 
-// method for establishing generic right turn pixel box
+// private method for establishing generic right turn pixel box
 static void genericRightTurnBox(OverlayRendererControl *controller)
 {
 	// calculate the four corners of the pixel box
@@ -174,7 +176,7 @@ static void genericRightTurnBox(OverlayRendererControl *controller)
 	genericRightArrow(controller);
 }
 
-// method for establishing generic left turn pixel box
+// private method for establishing generic left turn pixel box
 static void genericLeftTurnBox(OverlayRendererControl *controller)
 {
 	// calculate the four corners of the pixel box
@@ -191,7 +193,7 @@ static void genericLeftTurnBox(OverlayRendererControl *controller)
 	genericLeftArrow(controller);
 }
 
-// method for establishing generic straight turn pixel box
+// private method for establishing generic straight turn pixel box
 static void genericStraightRoadBox(OverlayRendererControl *controller)
 {
 	// calculate the four corners of the pixel box
@@ -214,23 +216,31 @@ static void genericStraightRoadBox(OverlayRendererControl *controller)
 /*****   forming the corners of a pixel box	for a dynamic arrow		   *****/
 /***************************************************************************/
 
-// method for establishing generic right turn pixel box
+// private method for establishing generic right turn pixel box
 static void rightTurnBox(OverlayRendererControl *controller)
 {
 	float pi = M_PI;
 
 	// calculate time to turn
-	float time = controller->distance/controller->velocity + .1;
+	//float time = controller->distance/(controller->velocity + .1);
+	float time = controller->distance/30;
 
 	// calculate the four corners of the pixel box
-	controller->x1 = (int) (controller->width/2); // - angle*4);
+	controller->x1 = (int) (controller->width/2);
 	controller->y1 = (int) (controller->height - controller->height * .2 -  ( time * controller->height/16));
 	controller->x3 = (int) (controller->width - (controller->width/30 *  time));
-	controller->y3 = (int) (controller->height - controller->height * .2 - ( time * (controller->height)/17)) + (15/(time + 2))*(controller->height/60 );
+	controller->y3 = (int) (controller->height - controller->height * .2 - ( time * (controller->height)/17)) + (15/(time + 2))*(controller->height/80 );
 	controller->x2 = controller->x3;
 	controller->y2 = controller->y1;
 	controller->x4 = controller->x1;
 	controller->y4 = controller->y3;
+
+	// check if the right edge of arrow goes beyond boundary on right of demo box. If it does then scale it back
+	if(controller->x3 > (controller->width - 200))
+	{
+		controller->x3 = controller->width - 200;
+		controller->x2 = controller->x3;
+	}
 
 	// calculate the seven points inside of the pixel box which form the arrow
 	genericRightArrow(controller);
@@ -256,21 +266,25 @@ static void rightTurnBox(OverlayRendererControl *controller)
 	controller->triangle[2][0] = (int) ((controller->triangle[2][0] - controller->x3) * cos(turnrad) + (controller->triangle[2][1] - controller->y3) * sin(turnrad) + controller->x3);
 	controller->triangle[2][1] = (int) ((controller->x3 - controller->triangle[2][0]) * sin(turnrad) + (controller->triangle[2][1] - controller->y3) * cos(turnrad) + controller->y3);
 
+	printf("Rx2: %d\n", controller->x2);
+	printf("Ry2: %d\n", controller->y2);
+
 }
 
-// method for establishing generic left turn pixel box
+// private method for establishing generic left turn pixel box
 static void leftTurnBox(OverlayRendererControl *controller)
 {
 	float pi = M_PI;
 
 	// calculate time to turn
-	float time = controller->distance/controller->velocity + .1;
+	//float time = controller->distance/(controller->velocity + .1);
+	float time = controller->distance/30;
 
 	// calculate the four corners of the pixel box
 	controller->x1 = (int) (controller->width/30 *  time);
 	controller->y1 = (int) (controller->height - controller->height * .2 -  ( time * controller->height/16));
 	controller->x3 = (int) (controller->width/2);
-	controller->y3 = (int) (controller->height - controller->height * .2 - ( time * (controller->height)/17)) + (15/(time + 2))*(controller->height/90);
+	controller->y3 = (int) (controller->height - controller->height * .2 - ( time * (controller->height)/17)) + (15/(time + 2))*(controller->height/80);
 	controller->x2 = controller->x3;
 	controller->y2 = controller->y1;
 	controller->x4 = controller->x1;
@@ -278,6 +292,13 @@ static void leftTurnBox(OverlayRendererControl *controller)
 
 	// calculate the seven points inside of the pixel box which form the arrow
 	genericLeftArrow(controller);
+
+	// check if the left edge of arrow goes beyond boundary on left of demo box. If it does then scale it back
+	if(controller->x1 < 200)
+	{
+		controller->x1 = 200;
+		controller->x4 = 200;
+	}
 
 	// calculate angle of rotation which needs to occur
 	float turnrad = (-90 - controller->turn_angle) * ((pi)/360);
@@ -300,9 +321,12 @@ static void leftTurnBox(OverlayRendererControl *controller)
 	controller->triangle[2][0] = (int) ((controller->triangle[2][0] - controller->x4) * cos(turnrad) + (controller->triangle[2][1] - controller->y4) * sin(turnrad) + controller->x4);
 	controller->triangle[2][1] = (int) ((controller->x4 - controller->triangle[2][0]) * sin(turnrad) + (controller->triangle[2][1] - controller->y4) * cos(turnrad) + controller->y4);
 
+	printf("Lx1: %d\n", controller->x1);
+	printf("Ly1: %d\n", controller->y1);
+
 }
 
-// method for establishing  straight turn pixel box
+// private method for establishing  straight turn pixel box
 static void straightRoadBox(OverlayRendererControl *controller)
 {
 	// the straight arrow is derived as a function of projector width and height
@@ -344,26 +368,28 @@ void processNavData(OverlayRendererControl *control)
 	// int distance; // distance before next turn is made in meters
 	// int turn_angle; // angle of next turn in +/- 180 degrees with respect to road currently on
 	
-	float time = control->distance / control->velocity;
-	printf("time %f\n", time);
+	// calculate time to turn
+	float time = control->distance /(control->velocity + .1);
+
 	/* If time is greater than x then draw arrow on current road.
 	 * If time is less than x and turn angle less than 0 draw arrow pointing left
 	 * If time is less than x and turn angle greater than 0 draw arrow pointing right
 	 */
-	if(time >= 14)
-	{
-		//control->turn_angle = -1;
-		straightRoadBox(control);
-	}
-	else if(time < 14 && control->turn_angle < 0)
+
+	if((time < 14 || control->distance <= 200) && control->turn_angle < 0 )
 	{
 		//control->turn_angle = control->turn_angle - 1;
 		leftTurnBox(control);
 	}
-	else if(time < 14 && control->turn_angle > 0)
+	else if((time < 14 || control->distance <= 200) && control->turn_angle > 0)
 	{
 		//control->turn_angle = control->turn_angle + 1;
 		rightTurnBox(control);
+	}
+	else if(time >= 14 || control->distance > 500)
+	{
+		//control->turn_angle = -1;
+		straightRoadBox(control);
 	}
 	else
 	{
@@ -371,126 +397,4 @@ void processNavData(OverlayRendererControl *control)
 	}
 }
 
-
-
-/***** REMOVED FROM LEFTTURNBOX ON 3/17. IT WAS CODE TO USE TRIG TO CALCULATE PIXEL BOX *****/
-
-/*	controller->x1 = (int) ((controller->x1 - controller->x4) * cos(turnrad) + (controller->y1 - controller->y4) * sin(turnrad) + controller->x4);
-	controller->y1 = (int) ((controller->x4 - controller->x1) * sin(turnrad) + (controller->y4 - controller->y1) * cos(turnrad) + controller->y4);
-	controller->x2 = (int) ((controller->x2 - controller->x4) * cos(turnrad) + (controller->y2 - controller->y4) * sin(turnrad) + controller->x4);
-	controller->y2 = (int) ((controller->x4 - controller->x2) * sin(turnrad) + (controller->y4 - controller->y2) * cos(turnrad) + controller->y4);
-	controller->x3 = (int) ((controller->x3 - controller->x4) * cos(turnrad) + (controller->y3 - controller->y4) * sin(turnrad) + controller->x4);
-	controller->y3 = (int) ((controller->x4 - controller->x3) * sin(turnrad) + (controller->y4 - controller->y3) * cos(turnrad) + controller->y4);*/
-
-/*	float length = sqrt(pow((controller->x2 - controller->x1),2) + pow((controller->y2 - controller->y1),2));
-	float theta = atan(abs(controller->y2 - controller->y1)/(float)abs(controller->x2 - controller->x1));
-
-	float turnrad = (90 + abs(controller->turn_angle)) * ((2*pi)/360);
-	int x3 = (int) (controller->x2 + length * cos(turnrad - theta));
-	int y3 = (int) (controller->y2 - length * sin(turnrad - theta));
-
-	printf("L  length: %f", length);
-	printf("   theta: %f", theta);
-	printf("   turn: %f", turnrad);
-	printf("   cos: %f", cos(turnrad - theta));
-	printf("   sin: %f", sin(turnrad - theta));
-	printf("   x1: %d", controller->x1);
-	printf("   x3: %d", x3);
-	printf("   y1: %d", controller->y1);
-	printf("   y3: %d\n", y3);
-
-	controller->x2 = tempx2;
-	controller->y2 = tempy2;
-	controller->x3 = tempx3;
-	controller->y3 = tempy3;
-	controller->x4 = tempx4;
-	controller->y4 = tempy4;*/
-
-
-
-/***** REMOVED FROM RIGHTTTURNBOX ON 3/17. IT WAS CODE TO USE TRIG TO CALCULATE PIXEL BOX *****/
-
-// calculate the rotation of the four corners of the pixel box
-/*	controller->x1 = (int) ((controller->x1 - controller->x3) * cos(turnrad) + (controller->y1 - controller->y3) * sin(turnrad) + controller->x3);
-controller->y1 = (int) ((controller->x3 - controller->x1) * sin(turnrad) + (controller->y3 - controller->y1) * cos(turnrad) + controller->y3);
-controller->x2 = (int) ((controller->x2 - controller->x3) * cos(turnrad) + (controller->y2 - controller->y3) * sin(turnrad) + controller->x3);
-controller->y2 = (int) ((controller->x3 - controller->x2) * sin(turnrad) + (controller->y3 - controller->y2) * cos(turnrad) + controller->y3);
-controller->x4 = (int) ((controller->x4 - controller->x3) * cos(turnrad) + (controller->y4 - controller->y3) * sin(turnrad) + controller->x3);
-controller->y4 = (int) ((controller->x3 - controller->x4) * sin(turnrad) + (controller->y3 - controller->y4) * cos(turnrad) + controller->y3);*/
-
-//controller->y1 = (int) (controller->height - ( time * controller->height/50));
-//controller->x3 = (int) (controller->width - (controller->width/30 *  time)); // - angle*4);
-//controller->y3 = (int) (controller->height - ( time * (controller->height)/50)) + (15/(time + 2))*(controller->height/70);
-
-/*	printf("****************** ORIGINAL *****************\n");
-	printf("   angle: %d", controller->turn_angle);
-	printf("   turn: %f", turnrad);
-	printf("   x1: %d", controller->x1);
-	printf("   y1: %d", controller->y1);
-	printf("   x2: %d", controller->x2);
-	printf("   y2: %d", controller->y2);
-	printf("   x3: %d", controller->x3);
-	printf("   y3: %d", controller->y3);
-	printf("   x4: %d", controller->x4);
-	printf("   y4: %d\n", controller->y4);*/
-
-/*	printf("****************** NEW *****************\n");
-	printf("   angle: %d", controller->turn_angle);
-	printf("   turn: %f", turnrad);
-	printf("   x1: %d", controller->x1);
-	printf("   y1: %d", controller->y1);
-	printf("   x2: %d", controller->x2);
-	printf("   y2: %d", controller->y2);
-	printf("   x3: %d", controller->x3);
-	printf("   y3: %d", controller->y3);
-	printf("   x4: %d", controller->x4);
-	printf("   y4: %d\n", controller->y4);*/
-
-
-	/*	controller->x1 = (int) (controller->width/2);
-	controller->y1 = (int) (controller->height - controller->height * .2 -  ( time * controller->height/16));
-	controller->x2 = (int) (controller->width - (controller->width/30 *  time));
-	controller->y2 = (int) (controller->height - controller->height * .2 - ( time * (controller->height)/17)) + (15/(time + 2))*(controller->height/90);
-	controller->x3 = controller->x1;
-	controller->y3 = controller->y2;
-	controller->x4 = controller->x2;
-	controller->y4 = controller->y1;*/
-
-/*	float length = sqrt(pow((controller->x2 - controller->x1),2) + pow((controller->y2 - controller->y1),2));
-	float theta = atan(abs(controller->y2 - controller->y1)/(float)abs(controller->x2 - controller->x1));
-
-	float turnrad = (450 - controller->turn_angle) * ((2*pi)/360);
-	int tempx2 = (int) (controller->x1 + length * cos(turnrad - theta));
-	int tempy2 = (int) (controller->y1 - length * sin(turnrad - theta));
-
-	int tempx3 = (int) (controller->x1 - length * cos(turnrad + (pi / 2)));
-	int tempy3 = (int) (controller->y1 - length * sin(turnrad + (pi / 2)));
-
-	int tempx4 = (int) (controller->x1 + length * cos(turnrad));
-	int tempy4 = (int) (controller->y1 - length * sin(turnrad));
-
-	//printf("R  length: %f", length);
-	printf("R theta: %f", theta);
-	printf("   turn: %f", turnrad);
-	printf("   cos: %f", cos(turnrad - theta));
-	printf("   sin: %f", sin(turnrad - theta));
-	printf("   x2: %d", controller->x2);
-	printf("   tx2: %d", tempx2);
-	printf("   y2: %d", controller->y2);
-	printf("   ty2: %d", tempy2);
-	printf("   x3: %d", controller->x3);
-	printf("   tx3: %d", tempx3);
-	printf("   y3: %d", controller->y3);
-	printf("   ty3: %d", tempy3);
-	printf("   x4: %d", controller->x4);
-	printf("   tx4: %d", tempx4);
-	printf("   y4: %d", controller->y4);
-	printf("   ty4: %d\n", tempy4);
-
-	controller->x2 = tempx2;
-	controller->y2 = tempy2;
-	controller->x3 = tempx3;
-	controller->y3 = tempy3;
-	controller->x4 = tempx4;
-	controller->y4 = tempy4;*/
 

@@ -62,7 +62,7 @@ typedef struct
 		int map_data_up_to_date; // 1 for yes, 0 for no
 		
 		// roadway boundaries data set by RoadTracking
-		int* boundary_array[2][6]; // matrix of 6 points indicating edge conditions
+		int boundary_array[6][2]; // matrix of 6 points indicating edge conditions
 		
 		// roadway boundaries data set by OverlayControl
 		time_t time_since_road_update;

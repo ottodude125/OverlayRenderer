@@ -4,7 +4,7 @@
  *  Created on: Dec 3, 2011
  *      Author: Jonathan Katon
  *
- *      OverlayRendererControl is responsible for managing the OverlayRenderer. It does the following:
+ *      OverlayRendererControl is responsible for managing the OverlayRenderer System. It does the following:
  *      	1) Contains a struct which holds
  *      		a) settings of the projection to be displayed
  *      			i) height * width of projection
@@ -17,16 +17,21 @@
  *      			iii) distance to next turn
  *      			iv) angle of next turn
  *      		d) variables to hold data from RoadTracking
+ *      			i) array of six coordinates indicating road boundaries
  *      		e) various variables needed to ensure smooth operation
  *      			i) time since last mapping update
- *      			ii) is data currently in use
- *      			iii) text for speed and distance to be displayed
- *      			f) array to hold pixel values for arrow to be displayed
+ *      			ii) is mapping data currently in use
+ *      			iii) time since last road tracking update
+ *      			iv) is road tracking data currently in use
+ *      			v) text for speed and distance to be displayed
+ *      			vi) array to hold pixel values for arrow to be displayed
  *      		2) Public methods to
  *      			a) initialize OverlayRenderer system
  *      			b) change color of projection
  *      			c) update mapping and routing route data
  *      			d) process data to produce image
+ *      			e) update road tracking data
+ *      			f) display image
  *      		3) Private methods to
  *      			a) set position of text in display
  *      			b) set text to display (mph and distance to turn)
@@ -46,12 +51,10 @@
 
 typedef char * string;
 
-//static OverlayRendererControl controller;
-
 // var to keep track if system is initialized
 static char initialized = 0;
 
-// static method to set pixel position of text in projection
+// private method which sets pixel position of text in projection
 static void setInfoTextPosition()
 {
 	int a = controller.width;
@@ -66,7 +69,7 @@ static void setInfoTextPosition()
 	controller.textPosition[1][1] = b - b*.08;
 }
 
-// static method to set the speed and distance text to be placed on the windshield
+// private method which sets the speed and distance text to be placed on the windshield
 static void setTextToDisplay()
 {
 	// calculate mph of vehicle
@@ -107,7 +110,7 @@ static void setTextToDisplay()
 	}
 }
 
-// final method to draw the created image to the projector
+// private method which sends the created image to the projector
 static void drawToProjector()
 {
 	// Display Image
@@ -119,7 +122,19 @@ static void drawToProjector()
 	//cvWaitKey(150);
 }
 
-// method to initialize the overlay rendering system - projector size and color and camera size
+static void drawBlankToProjector()
+{
+	// Display Image
+	IplImage* img;
+	cvNamedWindow( "Projection", CV_WINDOW_NORMAL );
+	cvSetWindowProperty("Projection", CV_WND_PROP_FULLSCREEN, CV_WINDOW_FULLSCREEN);
+	img = cvLoadImage( "blank.jpg", CV_LOAD_IMAGE_UNCHANGED );
+	cvShowImage("Projection", img);
+	//cvWaitKey(150);
+
+}
+
+// public method that initializes the overlay rendering system - projector size and color and camera size
 void initializeSystem(int xdimension, int ydimension, string projection_color, int camerax, int cameray)
 {
 	controller.width = xdimension;
@@ -149,13 +164,13 @@ void initializeSystem(int xdimension, int ydimension, string projection_color, i
 	initialized = 1;
 }
 
-// method to change the color of the projection
+// public method that changes the color of the projection
 void setProjectionColor(char projection_color[])
 {
 	strcpy(controller.color, projection_color);
 }
 
-// method to update the current route information returns 1 for successful, returns 0 if failed
+// public method that updates the current route information returns 1 for successful, returns 0 if failed
 int updateRouteData(int velocity, int road_angle, int distance, int turn_angle)
 {
 	if(controller.map_data_up_to_date == 0)
@@ -174,8 +189,8 @@ int updateRouteData(int velocity, int road_angle, int distance, int turn_angle)
 		return 0;
 }
 
-// method to update the current route information returns 1 for successful, returns 0 if failed
-int updateRoadTrackingData(int edges[2][6])
+// public method that updates the current road information returns 1 for successful, returns 0 if failed
+int updateRoadTrackingData(int edges[6][2])
 {
 	if(controller.road_data_up_to_date == 0)
 	{
@@ -183,9 +198,9 @@ int updateRoadTrackingData(int edges[2][6])
 		controller.time_since_road_update = time(NULL);
 		
 		int i, j = 0;
-		for(i = 0; i < 2; i++)
+		for(i = 0; i < 6; i++)
 		{
-			for(j = 0; j < 6; j++)
+			for(j = 0; j < 2; j++)
 			{
 				controller.boundary_array[i][j] = edges[i][j];
 			}
@@ -197,72 +212,80 @@ int updateRoadTrackingData(int edges[2][6])
 		return 0;
 }
 
-// method responsible for controlling the RouteInputAnalyzer, ChoicePath, and ImageCreation
-void processImageData()
+// public method responsible for controlling the RouteInputAnalyzer, ChoicePath, and ImageCreation
+void processImageData(int valid)
 {
-	// initialize program if it has not been done yet
-	if(initialized == 0)
+	if(valid == 1)
 	{
-		char projection_color[] = "red";
-		initializeSystem(800, 600,projection_color, 400, 300);
+		// initialize program if it has not been done yet
+		if(initialized == 0)
+		{
+			char projection_color[] = "red";
+			initializeSystem(800, 600,projection_color, 400, 300);
+		}
+
+		// TODO: Need to figure out how to create a thread here that will constantly run until the program exits
+		while(controller.map_data_up_to_date || controller.road_data_up_to_date)
+		{
+			// If new map and road data received process it
+			if(controller.map_data_up_to_date && controller.road_data_up_to_date)
+			{
+				// calculate pixel box for arrow placement using GPS data
+				//processGenericNavData(&controller);
+				processNavData(&controller);
+
+				// increase precision of pixel box for arrow placement using RoadTracking data
+				processTrackingData(&controller);
+
+				// create arrow and draw it to a file
+				drawImage(&controller);
+
+				// reset control so new data can be written to mapping and road tracking
+				controller.road_data_up_to_date = 0;
+				controller.map_data_up_to_date = 0;
+
+				// Draw the image to the projector
+				drawToProjector();
+			}
+
+			// If only new map data has been received then process it
+			else if(controller.map_data_up_to_date)
+			{
+				// calculate pixel box for arrow placement using GPS data
+				//processGenericNavData(&controller); // TOGGLE ON TO CREATE A GENERIC ARROW
+				processNavData(&controller); // TOGGLE ON TO CREATE A DYNAMIC ARROW
+
+				// create arrow and draw it to a file
+				drawImage(&controller);
+
+				// reset control so new data can be written to mapping
+				controller.map_data_up_to_date = 0;
+
+				// Draw the image to the projector
+				drawToProjector();
+			}
+
+			// If only new road data has been received then process it
+			else if(controller.road_data_up_to_date)
+			{
+				// increase precision of pixel box for arrow placement using RoadTracking data
+				//processTrackingData(&controller);
+
+				// create arrow and draw it to a file
+				drawRoadTrackingImage(&controller);
+
+				// reset control so new data can be written to road tracking
+				controller.road_data_up_to_date = 0;
+
+				// Draw the image to the projector
+				drawToProjector();
+			}
+		}
+
 	}
-
-	// TODO: Need to figure out how to create a thread here that will constantly run until the program exits
-	while(controller.map_data_up_to_date || controller.road_data_up_to_date)
+	else
 	{
-		// If new map and road data received process it
-		if(controller.map_data_up_to_date && controller.road_data_up_to_date)
-		{
-			// calculate pixel box for arrow placement using GPS data
-			//processGenericNavData(&controller);
-			processNavData(&controller);
-
-			// increase precision of pixel box for arrow placement using RoadTracking data
-			processTrackingData(&controller);
-
-			// create arrow and draw it to a file
-			drawImage(&controller);
-
-			// reset control so new data can be written to mapping and road tracking
-			controller.road_data_up_to_date = 0;
-			controller.map_data_up_to_date = 0;
-
-			// Draw the image to the projector
-			drawToProjector();
-		}
-
-		// If only new map data has been received then process it
-		else if(controller.map_data_up_to_date)
-		{
-			// calculate pixel box for arrow placement using GPS data
-			//processGenericNavData(&controller);
-			processNavData(&controller);
-
-			// create arrow and draw it to a file
-			drawImage(&controller);
-			
-			// reset control so new data can be written to mapping
-			controller.map_data_up_to_date = 0;
-			
-			// Draw the image to the projector
-			drawToProjector();
-		}
-
-		// If only new road data has been received then process it
-		else if(controller.road_data_up_to_date)
-		{
-			// increase precision of pixel box for arrow placement using RoadTracking data
-			processTrackingData(&controller);
-
-			// create arrow and draw it to a file
-			drawImage(&controller);
-
-			// reset control so new data can be written to road tracking
-			controller.road_data_up_to_date = 0;
-
-			// Draw the image to the projector
-			drawToProjector();
-		}
+		drawBlankToProjector();
 	}
 }
 

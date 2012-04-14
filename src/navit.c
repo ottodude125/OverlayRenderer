@@ -15,8 +15,7 @@
 #include <string.h>
 #include <time.h>
 
-const char *file = "TurnTest.txt";
-//const char *file = "basic.txt";
+const char *file = "data.txt";
 
 FILE *f;
 
@@ -34,12 +33,11 @@ int main(int argc,char **argv)
 		size_t i;
 		char line[255], *ptr;
 		int count = 0;
-		//int color = 0;
-		int angle = -170;
+		//int angle = 90;
 		
 		while (fgets(line, sizeof line, f) != NULL)
 		{
-			angle = angle + 5;
+			//angle = angle + 5;
 			while(time(NULL) - sec < 1)
 			{
 				count++;
@@ -53,29 +51,15 @@ int main(int argc,char **argv)
 				values[i] = (int)strtol(ptr, &ptr, 10);
 			}
 
-			/*if(values[2] < 900 && values[3] == -1)
-				angle = angle + 5;
-			if(values[2] < 900 && values[3] == 1)
-				angle = angle - 5;
-			else
-				angle = 170;*/
-			int a = updateRouteData(values[0], values[1], values[2], angle);
+			int a = updateRouteData(values[0], values[1], values[2], values[3]);
 
 			while( a != 1)
 			{
-				a = updateRouteData(values[0], values[1], values[2], angle);
+				a = updateRouteData(values[0], values[1], values[2], values[3]);
 			}
 
-			processImageData();
-			
-/*			color++;
-			if(color == 50)
-				setProjectionColor("blue");
-			else if(color == 100)
-				setProjectionColor("green");
-			else if(color == 150)
-				setProjectionColor("yellow");
-*/
+			processImageData(1);
+
 		}
 		
 	}
